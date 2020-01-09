@@ -1,11 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MovieAPI.Services;
 
 namespace MovieAPI.Models
 {
-    public partial class MRContext : DbContext, IDataBaseServices
+    public partial class MRContext : DbContext
     {
         public MRContext()
         {
@@ -17,53 +16,9 @@ namespace MovieAPI.Models
         }
 
         public virtual DbSet<Actors> Actors { get; set; }
+        public virtual DbSet<ActorsMovie> ActorsMovie { get; set; }
         public virtual DbSet<Movies> Movies { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-
-        public void AddAcotor(Actors actor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddMovie(Movies movie)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddUser(Users user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteActor(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteMovie(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteUser(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateActor(Actors actor, int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateMovie(Movies movie, int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateUser(Users user, int id)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -82,9 +37,6 @@ namespace MovieAPI.Models
                     .HasName("CNP_UNIQUE")
                     .IsUnique();
 
-                entity.HasIndex(e => e.MovieId)
-                    .HasName("Attendance_idx");
-
                 entity.Property(e => e.Id)
                     .HasColumnName("ID")
                     .HasColumnType("int(11)");
@@ -98,21 +50,30 @@ namespace MovieAPI.Models
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
 
-                entity.Property(e => e.MovieId)
-                    .HasColumnName("Movie_ID")
-                    .HasColumnType("int(11)");
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(45)")
                     .HasCharSet("utf8mb4")
                     .HasCollation("utf8mb4_0900_ai_ci");
+            });
 
-                entity.HasOne(d => d.Movie)
-                    .WithMany(p => p.Actors)
-                    .HasForeignKey(d => d.MovieId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("Attendance");
+            modelBuilder.Entity<ActorsMovie>(entity =>
+            {
+                entity.HasKey(e => new { e.MovieFkId, e.AcotorFkId })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("Actors-Movie");
+
+                entity.HasIndex(e => e.AcotorFkId)
+                    .HasName("ActorFK_idx");
+
+                entity.Property(e => e.MovieFkId)
+                    .HasColumnName("Movie_FK_ID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.AcotorFkId)
+                    .HasColumnName("Acotor_FK_ID")
+                    .HasColumnType("int(11)");
             });
 
             modelBuilder.Entity<Movies>(entity =>
